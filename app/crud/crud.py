@@ -31,9 +31,9 @@ def get_user(db: Session, user_id: int):
     else:
         return None
 
-def create_user(db: Session, users: users.UserRegister):
-    hashed_password = Hasher.get_password_hash(users.password)
-    db_user = user.User(email=users.email, hashed_password=hashed_password)
+def create_user(db: Session, user_id:int, user_email: str, user_password: str, user_full_name: str, sns_type:str):
+    hashed_password = Hasher.get_password_hash(user_password)
+    db_user = user.User(id=user_id, email=user_email, full_name=user_full_name, password=hashed_password, sns_type=sns_type)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
