@@ -6,6 +6,7 @@ from pydantic import BaseModel, EmailStr
 
 # Shared properties
 class UserBase(BaseModel):
+    id: int
     email: EmailStr
     full_name: str
     password: str
