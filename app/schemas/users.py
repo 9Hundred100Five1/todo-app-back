@@ -9,6 +9,7 @@ class UserBase(BaseModel):
     email: EmailStr
     full_name: str
     password: str
+    id: int
     
     class Config:
         orm_mode = True

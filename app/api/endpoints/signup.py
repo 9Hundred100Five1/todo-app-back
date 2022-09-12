@@ -42,12 +42,13 @@ def get_db():
 async def signup(sns_type: users.SnsType, user_info: users.UserSignup, db: Session = Depends(get_db)):
     if sns_type == sns_type.email:
         email = user_info.email
+        id = user_info.id
         password = user_info.password
 
         if not user_info.email or not user_info.password or not user_info.full_name:
                 return JSONResponse(status_code=400, content=dict(detail="Email, PW and Full Name must be provided'"))
 
-        is_exist = crud.get_user(db, email)
+        is_exist = crud.get_user(db, id)
 
         if is_exist:
             return JSONResponse(

@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class ItemBase(BaseModel):
     title: str
-    desc : Optional[str]
+    description : Optional[str]
     id : int
     owner_id: int
 

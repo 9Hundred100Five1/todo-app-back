@@ -40,7 +40,7 @@ def get_db():
 @router.post("/signin/{sns_type}", status_code=200)
 async def signin(sns_type: users.SnsType, user_info: users.UserSignup, db: Session = Depends(get_db)):
     if sns_type == sns_type.email:
-        is_exist = crud.get_user(db, user_info.email)
+        is_exist = crud.get_user(db, user_info.id)
 
         if not user_info.email or not user_info.password or not user_info.full_name:
             return JSONResponse(status_code=400, content=dict(detail="Email, PW and Full Name must be provided'"))

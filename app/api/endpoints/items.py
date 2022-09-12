@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import json
 from typing import Any, Union
 
 from fastapi import APIRouter, Depends
@@ -40,35 +41,33 @@ def get_db():
         db.close()
 
 @router.post("/create", status_code=200)
-async def create(user_info: users.UserBase, item_info: item.ItemCreate, db: Session = Depends(get_db)):
-    if not item_info.title or item_info.desc:
-        return JSONResponse(status_code=400, content=dict(detail="Title and Description must be provided'"))
-    elif not user_info.email or not user_info.password or not user_info.full_name:
-        return JSONResponse(status_code=400, content=dict(detail="Email, PW and Full name must be provided'"))
-    now = datetime.now(timezone('Asia/Seoul'))
-    crud.create_user_item(db, item_info, user_info.email)
-    return JSONResponse(status_code=200, content=dict({"title": item_info.title, "desc": item_info.desc, "created_at": now}))
+async def create(item_info: item.ItemCreate, db: Session = Depends(get_db)):
+    if not item_info.title or not item_info.description:
+        return JSONResponse(status_code=400, content=dict(detail="Title and descriptionription must be provided'"))
+    item_exist = crud.get_item(db, item_info.id)
+    if item_exist:
+        return JSONResponse(status_code=400, content=dict(detail="Item already exist"))
+    crud.create_item(db, item_info)
+    return JSONResponse(status_code=200, content=dict({"title": item_info.title, "description": item_info.description}))
 
 @router.delete("/delete", status_code=200)
-async def delete(user_info: users.UserBase, item_info: item.ItemCreate, db: Session = Depends(get_db)):
-    if not item_info.title or item_info.desc:
-        return JSONResponse(status_code=400, content=dict(detail="Title and Description must be provided'"))
-    elif not user_info.email or not user_info.password or not user_info.full_name:
-        return JSONResponse(status_code=400, content=dict(detail="Email, PW and Full name must be provided'"))
+async def delete(item_info: item.ItemDelete, db: Session = Depends(get_db)):
+    if not item_info.id:
+        return JSONResponse(status_code=400, content=dict(detail="Item id must be provided'"))
     
-    is_exist = crud.get_item(db, item_info.id, item_info.owner_id)
+    is_exist = crud.get_item(db, item_info.id)
 
     if not is_exist:
         return JSONResponse(status_code=400, content=dict(detail="NO_MATCH_ITEM"))
-    
-    crud.del_item(db, item_info.id, item_info.owner_id)
-    return JSONResponse(status_code=200, content=dict("SUCCESS"))
+
+
+    crud.del_item(db, item_info.id)
+    return JSONResponse(status_code=200, content=dict(detail="SUCCESS"))
 
 @router.post("/fetch", status_code=200)
-async def fetch(user_info: users.UserBase, item_info: item.ItemCreate, db: Session = Depends(get_db)):
-    if not item_info.title or item_info.desc:
-        return JSONResponse(status_code=400, content=dict(detail="Title and Description must be provided'"))
-    elif not user_info.email or not user_info.password or not user_info.full_name:
-        return JSONResponse(status_code=400, content=dict(detail="Email, PW and Full name must be provided'"))
-    crud.get_item(db, item_info.id, item_info.owner_id)
-    return JSONResponse(status_code=200, content=dict({"title": item_info.title, "desc": item_info.desc, "created_at": "UNKNOWN"}))
+async def fetch(item_info: item.ItemCreate, db: Session = Depends(get_db)):
+    if not item_info.title or not item_info.description:
+        return JSONResponse(status_code=400, content=dict(detail="Title and description must be provided'"))
+
+    crud.get_item(db, item_info.id)
+    return JSONResponse(status_code=200, content=dict({"title": item_info.title, "description": item_info.description, "created_at": "UNKNOWN"}))
