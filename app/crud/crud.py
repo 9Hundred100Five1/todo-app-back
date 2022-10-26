@@ -4,7 +4,7 @@ from app import schemas
 from app.models.models import Item, User
 from app.schemas import users
 from app.schemas import item
-from app.utils.hashing import Hasher
+from app.utils.authenticate import Hasher
 
 
 def get_user_by_email(db: Session, email: str):
